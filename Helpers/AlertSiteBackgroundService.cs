@@ -75,9 +75,8 @@ namespace NOCAPI.Modules.Users.Helpers
             {
                 try
                 {
-                    //var token = await _tokenService.GetAccessTokenAsync();
+                    var token = await _tokenService.GetAccessTokenAsync();
 
-                    var token = "bf2c125218c44ed7a0a1d56083c4a227";
                     foreach (var region in _alertsiteHelper.GetRegions().Keys)
                     {
                         var metrics = await _alertsiteHelper.GetRegionMetricsAsync(token, region);

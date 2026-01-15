@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using NOCAPI.Plugins.Config;
 
 namespace NOCAPI.Modules.Users.Helpers
 {
@@ -35,8 +36,8 @@ namespace NOCAPI.Modules.Users.Helpers
 
             var bodyObj = new
             {
-                username = "EMCTSAIOpsTeam@computershare.com",
-                password = "W/UMYu9~6CtMpDm8"
+                username = PluginConfigWrapper.Get("token_username"),
+                password = PluginConfigWrapper.Get("token_pw")
             };
 
             using var content = new StringContent(
