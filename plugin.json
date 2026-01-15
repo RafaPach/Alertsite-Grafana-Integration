@@ -1,0 +1,7 @@
+{
+  "name": "NOCAPI.Modules.Alertsite",
+  "version": "1.0.0",
+  "description": "Alertsite API integration plugin",
+  "author": "Rafael Pacheco",
+  "assembly": "NOCAPI.Modules.Alertsite.dll"
+}
