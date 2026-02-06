@@ -1,4 +1,7 @@
-﻿using NOCAPI.Modules.Users.DTOs;
+﻿//using NOCAPI.Modules.Alertsite.DTOs;
+using NOCAPI.Modules.Users.DTOs;
+
+//using NOCAPI.Modules.Users.DTOs;
 using Prometheus;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -27,10 +30,23 @@ namespace NOCAPI.Modules.Users.Helpers
         private static readonly IReadOnlyDictionary<Region, string[]> RegionFilters =
             new Dictionary<Region, string[]>
         {
-            { Region.EMEA, new[] { "Investor Centre", "Issuer Online" } },
-            { Region.NA, new[] { "CGS GEMS" } },
-            { Region.OCEANIA, new[] { "Issuer", "InvestorVote" } }
+            { Region.EMEA, new[] { "Investor Centre Responsive - Site Check", "Investor Centre Responsive - Performance", "UK Investor Centre Responsive - Core Functionality Test", "UK Issuer Online - Site Check", "UK Issuer Online - Advanced Search", "UK Issuer Online Core Functionality","EquatePlus","PING", "UK Proxy Vote - Performance", "Sphere", "Global Viewpoint", "Summit" } },
+            { Region.NA, new[] { "CGS GEMS", "NA_Issuer_Online_Holder","Equateplus", "InvestorVote","Sphere","Investor Center", "NOC ServiceNow Test Environment"} },
+                //{ Region.OCEANIA, new[] { "EquatePlus","IssuerAU_V3.16 - After Hours", "IssuerAU_V3.16 - Core Hours","IssuerNZ - Monitored from NZ_V2.6 - After Hours", "IssuerNZ - Monitored from NZ_V2.6 - Core Hours", "IC3 Registration AU_V5.0 - Core Hours", "InvestorVote", "GEMS"}
+                {Region.OCEANIA, new[]{ "EquatePlus", "IssuerAU_V3.16 - After Hours", "IssuerAU_V3.16 - Core Hours", "IssuerNZ - Monitored from NZ_V2.6 - After Hours", "IssuerNZ - Monitored from NZ_V2.6 - Core Hours", "IC3 Registration AU_V5.0 - Core Hours", "InvestorVote", "GEMS" } 
+          } 
         };
+
+
+        private static string NormalizeBusApplication(string app)
+        {
+            if (string.IsNullOrWhiteSpace(app))
+                return string.Empty;
+
+            return app.Replace("Investor Center", "Investor Centre", StringComparison.OrdinalIgnoreCase)
+                      .Trim();
+        }
+
 
         public AlertsiteHelper(IHttpClientFactory httpClientFactory)
         {
@@ -77,36 +93,45 @@ namespace NOCAPI.Modules.Users.Helpers
                 return [];
 
 
-            
-   var filtered = data.Results
-        .Where(r => !string.IsNullOrWhiteSpace(r.Devicename) &&
-                    filters.Any(f => r.Devicename.Contains(f, StringComparison.OrdinalIgnoreCase)))
-        .ToList();
 
-    // Build the list ONCE and return it
-    var metrics = new List<PrometheusMetric>(filtered.Count);
+            //var filtered = data.Results
+            //     .Where(r => !string.IsNullOrWhiteSpace(r.Devicename) &&
+            //                 filters.Any(f => r.Devicename.Contains(f, StringComparison.OrdinalIgnoreCase)) && !r.Devicename.Contains("UAT", StringComparison.OrdinalIgnoreCase))
+            //     .ToList();
 
-    foreach (var r in filtered)
-    {
-        var isHealthy = r.Laststatus == "0";
+
+
+
+            var filtered = data.Results.Where(r => string.Equals(r.Monitor, "y", StringComparison.OrdinalIgnoreCase))
+                 .Where(r => !string.IsNullOrWhiteSpace(r.Devicename) &&
+                             filters.Any(f => r.Devicename.Contains(f, StringComparison.OrdinalIgnoreCase) && !r.Devicename.Contains("UAT")) )
+                 .ToList();
+
+            var metrics = new List<PrometheusMetric>(filtered.Count);
+
+            foreach (var r in filtered)
+            {
+                var isHealthy = r.Laststatus == "0";
 
                 
-        var errorText = string.IsNullOrWhiteSpace(r.InfoMsg)
-            ? (string.IsNullOrWhiteSpace(r.Laststatusdesc) ? null : r.Laststatusdesc)
-            : r.InfoMsg;
+                var errorText = string.IsNullOrWhiteSpace(r.InfoMsg)
+                    ? (string.IsNullOrWhiteSpace(r.Laststatusdesc) ? null : r.Laststatusdesc)
+                    : r.InfoMsg;
+
+                //Console.WriteLine($"[{r.Devicename}] UAT? {r.Devicename.Contains("UAT")}");
 
 
-        metrics.Add(new PrometheusMetric
-        {
-            Region = region.ToString(),
-            App    = r.Devicename,
-            Value  = isHealthy ? 0 : 1,
-
-
-            // Only emit these when unhealthy to keep JSON clean
-            StatusDesc = isHealthy ? null : (string.IsNullOrWhiteSpace(r.Laststatusdesc) ? null : r.Laststatusdesc),
-            InfoMsg = isHealthy ? null : (string.IsNullOrWhiteSpace(r.InfoMsg) ? null : r.InfoMsg),
-        });
+                metrics.Add(new PrometheusMetric
+                {
+                    Region = region.ToString(),
+                    //App    = r.Devicename,
+                    App = NormalizeBusApplication(r.Devicename),
+                    Value  = isHealthy ? 0 : 1,
+                    ResponseTime = r.ResponseTime,
+                    LastStatusAt = r.Dtlaststatus,
+                    StatusDesc = isHealthy ? null : (string.IsNullOrWhiteSpace(r.Laststatusdesc) ? null : r.Laststatusdesc),
+                    InfoMsg = isHealthy ? null : (string.IsNullOrWhiteSpace(r.InfoMsg) ? null : r.InfoMsg),
+                });
 
             }
 

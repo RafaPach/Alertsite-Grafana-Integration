@@ -24,8 +24,14 @@ namespace NOCAPI.Modules.Users.DTOs
         [JsonPropertyName("last_status_desc")]
         public string Laststatusdesc { get; set; } = string.Empty;
 
+        [JsonPropertyName("monitor")]
+        public string? Monitor { get; set;}
+
         [JsonPropertyName("dt_last_status")]
         public string Dtlaststatus { get; set; }
+
+        [JsonPropertyName("resptime_last")]
+        public string ResponseTime { get; set; }
 
         [JsonPropertyName("info_msg")]
         public string InfoMsg { get; set; }

@@ -6,8 +6,14 @@ namespace NOCAPI.Modules.Users.DTOs
     public class PrometheusMetric
     {
         public string MetricName { get; set; } = "alertsite_app_health";
+
         public string Region { get; set; } = string.Empty;
         public string App { get; set; } = string.Empty;
+
+
+        public string ResponseTime { get; set; } = string.Empty; // resptime_last
+        public string? LastStatusAt { get; set; }                 // dt_last_status
+
 
         // 0 = healthy, 1 = unhealthy
         public int Value { get; set; }

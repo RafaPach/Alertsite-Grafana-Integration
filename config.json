@@ -1,4 +1,6 @@
 {
   "SomeSettingKey": "Hello from Alertsite plugin!",
-  "EnableFeatureX": true
+  "EnableFeatureX": true,
+  "Username": "EMCTSAIOpsTeam@computershare.com",
+  "Password": "W/UMYu9~6CtMpDm8"
 }

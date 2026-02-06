@@ -3,7 +3,8 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using NOCAPI.Plugins.Config;
 using NOCAPI.Modules.Users.Helpers;
-using NOCAPI.Modules.Alertsite.Initialiser;
+using NOCAPI.Modules.Alertsite.Services;
+//using NOCAPI.Modules.Alertsite.Initialiser;
 
 namespace NOCAPI.Modules.Alertsite
 {
@@ -12,20 +13,16 @@ namespace NOCAPI.Modules.Alertsite
     [Route("api/alertsite")]
     public class AlertsiteController : ControllerBase
     {
-        private readonly TokenService _tokenService;
-        private readonly AlertsiteHelper _alertsiteHelper;
 
-        public AlertsiteController(TokenService tokenService, AlertsiteHelper alertsiteHelper)
+        public AlertsiteController()
         {
-            _tokenService = tokenService;
-            _alertsiteHelper = alertsiteHelper;
 
             ServiceInitialiser.Initialize();
 
         }
 
-        [HttpGet("test")]
-        public async Task<IActionResult> GetHealthMetrics()
+        [HttpGet("status")]
+        public IActionResult GetHealthMetrics()
         {
             try
             {
